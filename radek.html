@@ -1,0 +1,517 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<script type="text/javascript">
+
+		var canvas;     //deklaracja obiektu "płótno" 
+		var c;			//na płótnie wyświetlana jest grafika
+
+		function clear_canvas() {		  //czyszczenie płótna
+			canvas = document.getElementById("canvas");
+			if (!canvas.getContext) { return; }
+			c = canvas.getContext("2d");
+			c.clearRect(0, 0, canvas.width, canvas.height);
+		}
+
+		function line(a, b, style) {	        //rysowanie odcinka
+			canvas = document.getElementById("canvas");
+			if (!canvas.getContext) { return; }
+			c = canvas.getContext("2d");
+			c.beginPath();
+			c.moveTo(a[0], a[1]);
+			c.lineTo(b[0], b[1]);
+			c.strokeStyle = style || "rgb(200,0,0)";
+			c.stroke();
+		}
+
+
+		var E = [320, 240]; 		// położenie obserwatora
+		var d = 700;					// d = ogniskowa (odległość obserwatora od rzutni)
+
+		function projectXY(p, d) {	// rzutowanie perpektywiczne, 
+			// obrazem punktu p (w przestrzeni 3D) jest punkt q (na płaszczyźnie XY)
+			var q = [];
+			q[0] = (p[0] - E[0]) * d / (d + p[2]) + E[0];
+			q[1] = (p[1] - E[1]) * d / (d + p[2]) + E[1];
+			return q;
+		}
+
+
+
+		function line3D(a, b, color) {  					 //rysowanie odcinka w 3 wymiarach
+			line(projectXY(a, d), projectXY(b, d), color);
+		}
+
+		function scale(v, s) {           //skalowanie, v=tablica wierzchołków, s=skala
+			for (var i = 0; i < v.length; i++) {
+				for (var j = 0; j < v[i].length; j++) {
+					v[i][j] *= s;
+				}
+			}
+			return v;
+		}
+
+
+		var cube = scale([			//deklaracja zmiennej "cube" (sześcian), skala=200
+
+
+
+			//wierzchołki dolne wiatraka
+			[1, 2.35, 1.3],  	//0
+			[2, 2.35, 1.3], 	//1	
+			[2, 2.35, 2.20],	 //2				
+			[1, 2.35, 2.20],		//3
+
+			//wierzchołki górne wiatraka
+			[1.2, 0.5, 1.35], 		//4
+			[1.8, 0.5, 1.35], 		//5
+			[1.8, 0.5, 2.15], 		//6
+			[1.2, 0.5, 2.15],//7
+			//okno
+			[1.45, 1, 1.35],//8
+			[1.55, 1, 1.35],//9
+			[1.6, 1.2, 1.35],//10
+			[1.4, 1.2, 1.35],//11
+
+			//daszek
+			[1.5, 0, 1.75],//36
+
+
+
+		], 200);
+
+
+
+		var cube2 = scale([
+
+
+			//cube pod smiglem
+			[1.45, 0.7, 1.35],//12
+			[1.55, 0.7, 1.35],//13
+			[1.55, 0.8, 1.35],//14
+			[1.45, 0.8, 1.35],//15
+
+			[1.45, 0.7, 1.25],//16
+			[1.55, 0.7, 1.25],//17
+			[1.55, 0.8, 1.25],//18
+			[1.45, 0.8, 1.25],//19
+
+			//smiglo lewe dol
+			[1, 1.2, 1.2],//20
+			[1.1, 1.3, 1.2],//21
+
+			//smiglo prawe gora
+			[1.9, 0.2, 1.2],//22
+			[2, 0.3, 1.2],//23
+
+			//smiglo lewe gora
+			[1, 0.2, 1.2],//24
+			[0.9, 0.3, 1.2],//25
+
+			//smiglo prawe dol
+			[2, 1.2, 1.2],//26
+			[1.9, 1.3, 1.2],//27
+
+			//smiglo prawe dol glebia
+			[2, 1.2, 1.15],//28
+			[1.9, 1.3, 1.15],//29
+
+			//smiglo lewe gora glebia
+			[1, 0.2, 1.15],//30
+			[0.9, 0.3, 1.15],//31
+
+			//smiglo prawe gora glebia
+			[1.9, 0.2, 1.15],//32
+			[2, 0.3, 1.15],//33
+
+			//smiglo lewe dol glebia
+			[1, 1.2, 1.15],//34
+			[1.1, 1.3, 1.15],//35
+
+
+
+		], 200);
+
+
+
+
+		function drawCube() {
+			for (var i = 0; i < 3; i++) {				//krawędzie górne
+				line3D(cube[i], cube[i + 1], "blue");
+			}
+
+			line3D(cube[3], cube[0], "blue");
+
+			for (var i = 4; i < 7; i++) {       		//krawędzie dolne
+				line3D(cube[i], cube[i + 1], "red");
+			}
+
+			line3D(cube[7], cube[4], "red");
+
+			for (var i = 0; i < 4; i++) {     			//krawędzie pionowe
+				line3D(cube[i], cube[i + 4], "green");
+			}
+
+			line3D(cube[8], cube[9], "yellow");
+			line3D(cube[9], cube[10], "yellow");
+			line3D(cube[10], cube[11], "yellow");
+			line3D(cube[11], cube[8], "yellow");
+
+			line3D(cube2[0], cube2[1], "cadetblue");
+			line3D(cube2[1], cube2[2], "cadetblue");
+			line3D(cube2[2], cube2[3], "cadetblue");
+			line3D(cube2[3], cube2[0], "cadetblue");
+
+			line3D(cube2[4], cube2[5], "black");
+			line3D(cube2[5], cube2[6], "black");
+			line3D(cube2[6], cube2[7], "black");
+			line3D(cube2[7], cube2[4], "black");
+
+			line3D(cube2[0], cube2[4], "cadetblue");
+			line3D(cube2[1], cube2[5], "cadetblue");
+			line3D(cube2[2], cube2[6], "cadetblue");
+			line3D(cube2[3], cube2[7], "cadetblue");
+
+			line3D(cube2[4], cube2[8], "orange");
+			line3D(cube2[8], cube2[9], "orange");
+			line3D(cube2[6], cube2[9], "orange");
+
+
+			line3D(cube2[4], cube2[10], "pink");
+			line3D(cube2[10], cube2[11], "pink");
+			line3D(cube2[6], cube2[11], "pink");
+
+			line3D(cube2[5], cube2[12], "gray");
+			line3D(cube2[12], cube2[13], "gray");
+			line3D(cube2[7], cube2[13], "gray");
+
+			line3D(cube2[5], cube2[14], "red");
+			line3D(cube2[15], cube2[14], "red");
+			line3D(cube2[7], cube2[15], "red");
+
+			line3D(cube2[14], cube2[16], "red");
+			line3D(cube2[15], cube2[17], "red");
+			line3D(cube2[16], cube2[17], "red");
+			line3D(cube2[5], cube2[16], "red");
+			line3D(cube2[7], cube2[17], "red");
+
+			line3D(cube2[12], cube2[18], "gray");
+			line3D(cube2[13], cube2[19], "gray");
+			line3D(cube2[18], cube2[19], "gray");
+			line3D(cube2[18], cube2[5], "gray");
+			line3D(cube2[19], cube2[7], "gray");
+
+
+			line3D(cube2[20], cube2[10], "pink");
+			line3D(cube2[20], cube2[21], "pink");
+			line3D(cube2[21], cube2[11], "pink");
+			line3D(cube2[4], cube2[20], "pink");
+			line3D(cube2[6], cube2[21], "pink");
+
+
+
+			line3D(cube2[8], cube2[22], "black");
+			line3D(cube2[9], cube2[23], "black");
+			line3D(cube2[22], cube2[23], "black");
+			line3D(cube2[4], cube2[22], "black");
+			line3D(cube2[6], cube2[23], "black");
+
+
+			for (var i = 0; i < 4; i++) {       		//daszek
+				line3D(cube[12], cube[i + 4], "brown");
+			}
+
+		}
+
+
+
+		function degreesToRadians(angle) {
+			return radians = (Math.PI / 180) * angle;
+		}
+
+		function rotateX(p, q, angle) {  // obrót punktu "p" o kąt "angle" wokół prostej równoległej do osi X i przechodzącej przez punkt "q"
+			var pom = p[1];
+			var f = degreesToRadians(angle);
+
+			p[1] = ((p[1] - q[1]) * Math.cos(f) - (p[2] - q[2]) * Math.sin(f)) + q[1];
+			p[2] = ((pom - q[1]) * Math.sin(f) + (p[2] - q[2]) * Math.cos(f)) + q[2];
+			return p;
+		}
+
+		function rotateY(p, q, angle) {   // obrót punktu "p" o kąt "angle" wokół prostej równoległej do osi Y i przechodzącej przez punkt "q"
+			var pom = p[2];
+			var f = degreesToRadians(angle);
+
+			p[2] = ((p[2] - q[2]) * Math.cos(f) - (p[0] - q[0]) * Math.sin(f)) + q[2];
+			p[0] = ((pom - q[2]) * Math.sin(f) + (p[0] - q[0]) * Math.cos(f)) + q[0];
+			return p;
+		}
+		function rotateZ(p, q, angle) {	// obrót punktu "p" o kąt "angle" wokół prostej równoległej do osi Z i przechodzącej przez punkt "q"
+			var pom = p[0];
+			var f = degreesToRadians(angle);
+
+			p[0] = ((p[0] - q[0]) * Math.cos(f) - (p[1] - q[1]) * Math.sin(f)) + q[0];
+			p[1] = ((pom - q[0]) * Math.sin(f) + (p[1] - q[1]) * Math.cos(f)) + q[1];
+			return p;
+		}
+
+
+
+		function rotateVertex(v, q, angle, axis) {
+
+			if (axis == 0) {
+				for (i = 0; i < v.length; i++) { rotateX(v[i], q, angle); }
+			}
+			if (axis == 1) {
+				for (i = 0; i < v.length; i++) { rotateY(v[i], q, angle); }
+			}
+			if (axis == 2) {
+				for (i = 0; i < v.length; i++) { rotateZ(v[i], q, angle); }
+			}
+
+			return v;
+		}
+
+
+		// obroty
+		function rotateCubeX() {
+			var q = [(cube[0][0] + cube[6][0]) / 2, (cube[0][1] + cube[6][1]) / 2, (cube[0][2] + cube[6][2]) / 2]; //q = środek kostki
+			rotateVertex(cube, q, 6, 0);
+			clear_canvas();
+			drawCube();
+		}
+		function rotateCubeY() {
+			var q = [(cube[0][0] + cube[6][0]) / 2, (cube[0][1] + cube[6][1]) / 2, (cube[0][2] + cube[6][2]) / 2];
+			rotateVertex(cube, q, 6, 1);
+			rotateVertex(cube2, q, 6, 1);
+			clear_canvas();
+			drawCube();
+
+		}
+		function rotateCubeZ() {
+			var q = [(cube2[0][0] + cube2[6][0]) / 2, (cube2[0][1] + cube2[6][1]) / 2, (cube2[0][2] + cube2[6][2]) / 2];
+			rotateVertex(cube2, q, 6, 2);
+			clear_canvas();
+			drawCube();
+		}
+
+		var rotX, rotY, rotZ;  // zmienne używane do animacji
+
+		function stopAnimation() {
+			clearInterval(rotX);
+			clearInterval(rotY);
+			clearInterval(rotZ);
+		}
+
+		function startRotationX() {
+			stopAnimation();
+			rotX = setInterval('rotateCubeX()', 50);
+		}
+		function startRotationY() {
+			stopAnimation();
+			rotY = setInterval('rotateCubeY()', 50);
+		}
+		function startRotationZ() {
+			stopAnimation();
+			rotZ = setInterval('rotateCubeZ()', 50);
+		}
+
+
+		function translate(a, b) {		//przesunięcie punktu a o wektor b (w przestrzeni 3D)
+			a[0] = a[0] + b[0];
+			a[1] = a[1] + b[1];
+			a[2] = a[2] + b[2];
+			return a;
+		}
+		function translateVertex(v, b) {    //przesunięcie tablicy punktów "v"(wierzchołków) wektor "b" (w przestrzeni 3D)
+			for (i = 0; i < v.length; i++) { translate(v[i], b); }
+			return v;
+		}
+
+
+		function keyDownHandler(e) 			//obsługa zdarzeń za pomoca klawiatury
+		{
+			stopAnimation();
+
+			e = e || event;
+			var keyCode = e.keyCode,
+				letter = (String.fromCharCode(e.keyCode) || '').toLowerCase();
+
+			if (37 == keyCode) {			//stzrałka w lewo
+				translateVertex(cube, [-10, 0, 0]);
+				clear_canvas();
+				drawCube();
+			}
+			if (38 == keyCode) {      //stzrałka w górę
+				translateVertex(cube, [0, -10, 0]);
+				clear_canvas();
+				drawCube();
+			}
+			if (39 == keyCode) {    //strzałka w prawo
+				translateVertex(cube, [10, 0, 0]);
+				clear_canvas();
+				drawCube();
+			}
+			if (40 == keyCode) {  //stzrałka w dół
+				translateVertex(cube, [0, 10, 0]);
+				clear_canvas();
+				drawCube();
+			}
+			if (33 == keyCode) {  //[page up] = przybliżanie
+				translateVertex(cube, [0, 0, -10]);
+				clear_canvas();
+				drawCube();
+			}
+			if (34 == keyCode) {  //[page down] = oddalanie
+				translateVertex(cube, [0, 0, 10]);
+				clear_canvas();
+				drawCube();
+			}
+			if (88 == keyCode) {  //[X] - obrót wokół osi x
+				rotateCubeX();
+			}
+			if (89 == keyCode) {  //[Y] - rotacja wokół osi y
+				rotateCubeY();
+			}
+			if (90 == keyCode) {  //[Z] - rotacja wokół osi z
+				rotateCubeZ();
+			}
+			return false;
+		}
+
+		// pzrywrócenie stanu początkowego
+		function resetCube() {
+			stopAnimation();
+
+			cube = scale([			//deklaracja zmiennej "cube" (sześcian), skala=200
+
+
+
+				//wierzchołki dolne wiatraka
+				[1, 2.35, 1.3],  	//0
+				[2, 2.35, 1.3], 	//1	
+				[2, 2.35, 2.20],	 //2				
+				[1, 2.35, 2.20],		//3
+
+				//wierzchołki górne wiatraka
+				[1.2, 0.5, 1.35], 		//4
+				[1.8, 0.5, 1.35], 		//5
+				[1.8, 0.5, 2.15], 		//6
+				[1.2, 0.5, 2.15],//7
+				//okno
+				[1.45, 1, 1.35],//8
+				[1.55, 1, 1.35],//9
+				[1.6, 1.2, 1.35],//10
+				[1.4, 1.2, 1.35],//11
+
+				//daszek
+				[1.5, 0, 1.75],//36
+
+
+
+			], 200);
+
+
+
+			cube2 = scale([
+
+
+				//cube pod smiglem
+				[1.45, 0.7, 1.35],//12
+				[1.55, 0.7, 1.35],//13
+				[1.55, 0.8, 1.35],//14
+				[1.45, 0.8, 1.35],//15
+
+				[1.45, 0.7, 1.25],//16
+				[1.55, 0.7, 1.25],//17
+				[1.55, 0.8, 1.25],//18
+				[1.45, 0.8, 1.25],//19
+
+				//smiglo lewe dol
+				[1, 1.2, 1.2],//20
+				[1.1, 1.3, 1.2],//21
+
+				//smiglo prawe gora
+				[1.9, 0.2, 1.2],//22
+				[2, 0.3, 1.2],//23
+
+				//smiglo lewe gora
+				[1, 0.2, 1.2],//24
+				[0.9, 0.3, 1.2],//25
+
+				//smiglo prawe dol
+				[2, 1.2, 1.2],//26
+				[1.9, 1.3, 1.2],//27
+
+				//smiglo prawe dol glebia
+				[2, 1.2, 1.15],//28
+				[1.9, 1.3, 1.15],//29
+
+				//smiglo lewe gora glebia
+				[1, 0.2, 1.15],//30
+				[0.9, 0.3, 1.15],//31
+
+				//smiglo prawe gora glebia
+				[1.9, 0.2, 1.15],//32
+				[2, 0.3, 1.15],//33
+
+				//smiglo lewe dol glebia
+				[1, 1.2, 1.15],//34
+				[1.1, 1.3, 1.15],//35
+
+
+
+			], 200);
+
+			d = 700;
+			clear_canvas();
+			drawCube();
+		}
+
+		function focalPlus() { //zoom d++
+			stopAnimation();
+			if (d < 3000) { d = d + 100; }
+			clear_canvas();
+			drawCube();
+		}
+		function focalMinus() { //zoom d--
+			stopAnimation();
+			if (d > 100) { d = d - 100; }
+			clear_canvas();
+			drawCube();
+		}	
+	</script>
+</head>
+
+
+<body onkeydown="keyDownHandler(event)">
+	<!-- usatwienie obsługi klawiatury -->
+
+	<!-- Ustawienie rozmiarów płótna: 640x480 -->
+	<canvas id="canvas" width='640' height='480' style='background:rgb(222,222,222)'>
+
+		<p>Sorry: Browser does not support Graphics Canvas</p>
+	</canvas>
+	<br /><br />
+
+	<button onclick="drawCube();">Rysuj</button>
+	<button onclick="startRotationX();">Animacja X</button>
+	<button onclick="startRotationY();">Animacja Y</button>
+	<button onclick="startRotationZ();">Animacja Z</button>
+	<button onclick="stopAnimation();">STOP</button>
+	<button onclick="resetCube();">RESET</button>
+	<button onclick="focalPlus();">d++</button>
+	<button onclick="focalMinus();">d--</button>
+
+
+	<br /><br />
+	Przesunięcia - klawisze strzałek oraz [PageUp], [PageDown]
+	<br />
+	Obroty - klawisze [X],[Y],[Z]
+
+
+</body>
+
+</html>
